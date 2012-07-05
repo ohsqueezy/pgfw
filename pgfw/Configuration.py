@@ -1,5 +1,5 @@
-from os import sep
-from os.path import join, exists
+from os import sep, getcwd
+from os.path import join, exists, basename
 from sys import argv
 from pprint import pformat
 
@@ -18,6 +18,8 @@ class Configuration(RawConfigParser):
         self.installed_resources_path = installed_resources_path
         self.rel_path = rel_path
         self.read()
+        if self.is_debug_mode():
+            print self
 
     def set_type_declarations(self, type_declarations):
         if type_declarations is None:
@@ -27,6 +29,7 @@ class Configuration(RawConfigParser):
     def set_defaults(self):
         self.add_section("setup")
         self.set("setup", "title", "")
+        self.set("setup", "package-root", basename(getcwd()))
         self.add_section("display")
         self.set("display", "dimensions", "480, 320")
         self.set("display", "frame-duration", "33")
@@ -57,7 +60,6 @@ class Configuration(RawConfigParser):
             elif pair in types["list"]:
                 return map(str.strip, value.split(types.list_member_sep))
             elif pair in types["int-list"]:
-                print value
                 return map(int, value.split(types.list_member_sep))
         return value
 
