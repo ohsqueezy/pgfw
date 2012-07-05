@@ -35,6 +35,7 @@ class Configuration(RawConfigParser):
         self.set("display", "frame-duration", "33")
         self.set("display", "wait-duration", "2")
         self.set("display", "caption", None)
+        self.set("display", "centered", True)
         self.add_section("resources")
         self.set("resources", "installation-path", ".")
         self.add_section("screen-captures")
@@ -50,7 +51,7 @@ class Configuration(RawConfigParser):
         types = self.type_declarations
         if type(value) == str:
             if pair in types["bool"]:
-                return True if value == "T" else False
+                return True if value == "yes" else False
             elif pair in types["int"]:
                 return int(value)
             elif pair in types["float"]:
@@ -121,6 +122,7 @@ class TypeDeclarations(dict):
                              "list": [], "int-list": []})
         self.add("int", "display", "frame-duration")
         self.add("int", "display", "wait-duration")
+        self.add("bool", "display", "centered")
         self.add("int-list", "display", "dimensions")
         self.add("path", "resources", "installation-path")
         self.add("path", "screen-captures", "path")

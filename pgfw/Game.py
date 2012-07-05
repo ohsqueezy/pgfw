@@ -1,4 +1,4 @@
-import sys
+from os import environ
 
 import pygame
 from pygame import display
@@ -21,6 +21,7 @@ class Game(GameChild, Animation):
         self.config_rel_path = config_rel_path
         self.set_configuration()
         self.init_animation()
+        self.align_window()
         pygame.init()
         self.set_children()
         self.subscribe_to(QUIT, self.end)
@@ -38,6 +39,10 @@ class Game(GameChild, Animation):
     def init_animation(self):
         Animation.__init__(self,
                            self.configuration.get("display", "frame-duration"))
+
+    def align_window(self):
+        if self.configuration.get("display", "centered"):
+            environ["SDL_VIDEO_CENTERED"] = "1"
 
     def set_children(self):
         self.set_display()
