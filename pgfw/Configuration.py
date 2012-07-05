@@ -10,8 +10,9 @@ class Configuration(RawConfigParser):
     default_rel_path = "config"
 
     def __init__(self, installed_resources_path=None, rel_path=None,
-                 type_declarations=None):
+                 type_declarations=None, local=False):
         RawConfigParser.__init__(self)
+        self.local = local
         self.set_type_declarations(type_declarations)
         self.set_defaults()
         self.installed_resources_path = installed_resources_path
@@ -84,7 +85,7 @@ class Configuration(RawConfigParser):
             return rel_path
 
     def is_local_mode(self):
-        return "-l" in argv
+        return "-l" in argv or self.local
 
     def get(self, section, option):
         value = RawConfigParser.get(self, section, option)
