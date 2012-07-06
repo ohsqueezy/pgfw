@@ -8,7 +8,7 @@ from GameChild import *
 from Animation import *
 from Audio import *
 from Display import *
-from Configuration import *
+from configuration.Configuration import *
 from EventDelegate import *
 from Input import *
 from ScreenGrabber import *

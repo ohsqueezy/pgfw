@@ -1,0 +1,23 @@
+[setup]
+title = 
+# package-root = (This default is added in the code)
+classifiers =
+
+[display]
+dimensions = 480, 320
+frame-duration = 33
+wait-duration = 2
+caption = 
+centered = yes
+
+[resources]
+installation-path = .
+
+[screen-captures]
+path = caps
+
+[keys]
+up = K_UP, K_w
+right = K_RIGHT, K_d
+down = K_DOWN, K_s
+left = K_LEFT, K_a

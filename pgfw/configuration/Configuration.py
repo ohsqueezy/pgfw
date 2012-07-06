@@ -1,5 +1,5 @@
 from os import sep, getcwd
-from os.path import join, exists, basename
+from os.path import join, exists, basename, dirname
 from sys import argv
 from pprint import pformat
 
@@ -8,16 +8,17 @@ from ConfigParser import RawConfigParser
 class Configuration(RawConfigParser):
 
     default_rel_path = "config"
+    defaults_file_path = "defaults"
 
     def __init__(self, installed_resources_path=None, rel_path=None,
                  type_declarations=None, local=False):
         RawConfigParser.__init__(self)
         self.local = local
         self.set_type_declarations(type_declarations)
-        self.set_defaults()
         self.installed_resources_path = installed_resources_path
         self.rel_path = rel_path
-        self.read()
+        self.read_defaults()
+        self.read_project_file()
         if self.is_debug_mode():
             print self
 
@@ -25,22 +26,6 @@ class Configuration(RawConfigParser):
         if type_declarations is None:
             type_declarations = TypeDeclarations()
         self.type_declarations = type_declarations
-
-    def set_defaults(self):
-        self.add_section("setup")
-        self.set("setup", "title", "")
-        self.set("setup", "package-root", basename(getcwd()))
-        self.add_section("display")
-        self.set("display", "dimensions", "480, 320")
-        self.set("display", "frame-duration", "33")
-        self.set("display", "wait-duration", "2")
-        self.set("display", "caption", None)
-        self.set("display", "centered", True)
-        self.add_section("resources")
-        self.set("resources", "installation-path", ".")
-        self.add_section("screen-captures")
-        self.set("screen-captures", "path", "caps")
-        self.add_section("keys")
 
     def set(self, section, option, value):
         value = self.cast_value(section, option, value)
@@ -64,21 +49,28 @@ class Configuration(RawConfigParser):
                 return map(int, value.split(types.list_member_sep))
         return value
 
-    def read(self):
-        path = self.locate_file()
+    def read_defaults(self):
+        self.read(join(dirname(__file__), self.defaults_file_path))
+        self.set("setup", "package-root", basename(getcwd()))
+
+    def read(self, filenames):
+        files_read = RawConfigParser.read(self, filenames)
+        for section in self.sections():
+            for option, value in self.items(section):
+                self.set(section, option, value)
+        return files_read
+
+    def read_project_file(self):
+        path = self.locate_project_file()
         if path:
-            RawConfigParser.read(self, path)
-            for section in self.sections():
-                for option, value in self.items(section):
-                    self.set(section, option, value)
-        else:
-            if self.is_debug_mode():
-                print "No configuration file found"
+            self.read(path)
+        elif self.is_debug_mode():
+            print "No configuration file found"
 
     def is_debug_mode(self):
         return "-d" in argv
 
-    def locate_file(self):
+    def locate_project_file(self):
         rel_path = self.rel_path if self.rel_path else self.default_rel_path
         if not self.is_local_mode():
             installed_path = join(self.installed_resources_path, rel_path)
@@ -113,6 +105,7 @@ class Configuration(RawConfigParser):
             config[section] = self.get_section(section)
         return pformat(config, 2, 1)
 
+
 class TypeDeclarations(dict):
 
     list_member_sep = ','
@@ -126,7 +119,11 @@ class TypeDeclarations(dict):
         self.add("int-list", "display", "dimensions")
         self.add("path", "resources", "installation-path")
         self.add("path", "screen-captures", "path")
+        self.add("list", "setup", "classifiers")
         self.add("list", "keys", "up")
+        self.add("list", "keys", "right")
+        self.add("list", "keys", "down")
+        self.add("list", "keys", "left")
 
     def add(self, type, section, option):
         self[type].append((section, option))

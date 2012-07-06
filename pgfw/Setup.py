@@ -2,7 +2,7 @@ from os import walk, remove
 from os.path import sep, join, exists, realpath, relpath
 from re import findall
 
-from Configuration import *
+from configuration.Configuration import *
 
 class Setup:
 
