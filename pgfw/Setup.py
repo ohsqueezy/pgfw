@@ -17,8 +17,10 @@ class Setup:
     @classmethod
     def build_package_list(self):
         packages = []
-        for root, dirs, files in walk("esp_hadouken"):
-            packages.append(root.replace(sep, "."))
+        package_root = self.config.get("setup", "package-root")
+        if exists(package_root):
+            for root, dirs, files in walk(package_root, followlinks=True):
+                packages.append(root.replace(sep, "."))
         return packages
 
     @classmethod
