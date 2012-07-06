@@ -19,8 +19,7 @@ class Configuration(RawConfigParser):
         self.rel_path = rel_path
         self.read_defaults()
         self.read_project_file()
-        if self.is_debug_mode():
-            print self
+        self.print_debug_statement(self)
 
     def set_type_declarations(self, type_declarations):
         if type_declarations is None:
@@ -64,9 +63,12 @@ class Configuration(RawConfigParser):
         path = self.locate_project_file()
         if path:
             self.read(path)
-        elif self.is_debug_mode():
-            print "No configuration file found"
+        self.print_debug_statement("No configuration file found")
 
+    def print_debug_statement(self, statement):
+        if self.is_debug_mode():
+            print statement
+            
     def is_debug_mode(self):
         return "-d" in argv
 
