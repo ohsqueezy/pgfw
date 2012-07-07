@@ -26,7 +26,7 @@ class Game(GameChild, Animation):
         pygame.init()
         self.set_children()
         self.subscribe_to(QUIT, self.end)
-        self.subscribe_to(Input.command_event, self.end)
+        self.subscribe_to(self.get_user_event_id(), self.end)
         self.clear_queue()
         self.delegate.enable()
 
@@ -76,5 +76,5 @@ class Game(GameChild, Animation):
         pass
 
     def end(self, evt):
-        if evt.type == QUIT or evt.command == "quit":
+        if evt.type == QUIT or self.is_command(evt, "quit"):
             self.stop()

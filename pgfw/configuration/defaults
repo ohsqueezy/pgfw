@@ -17,9 +17,16 @@ centered = yes
 [screen-captures]
 # path =
 rel-path = caps
+file-name-format = %Y-%m-%d_%H:%M:%S
+file-extension = png
 
 [keys]
 up = K_UP, K_w
 right = K_RIGHT, K_d
 down = K_DOWN, K_s
 left = K_LEFT, K_a
+capture-screen = K_F9
+
+[event]
+user-event-id = USEREVENT
+command-event-name = command

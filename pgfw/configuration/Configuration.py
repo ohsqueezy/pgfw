@@ -1,5 +1,5 @@
 from os import sep, getcwd
-from os.path import join, exists, basename, dirname
+from os.path import join, exists, basename, dirname, expanduser
 from sys import argv
 from pprint import pformat
 
@@ -19,7 +19,7 @@ class Configuration(RawConfigParser):
         self.set_type_declarations(type_declarations)
         self.read_defaults()
         self.read_project_config_file()
-        self.print_debug_statement(self)
+        self.print_debug(self)
 
     def set_type_declarations(self, type_declarations):
         if type_declarations is None:
@@ -55,7 +55,7 @@ class Configuration(RawConfigParser):
         new = ""
         if path[0] == sep:
             new += sep
-        return new + join(*path.split(sep))
+        return expanduser("{0}{1}".format(new, join(*path.split(sep))))
 
     def read_defaults(self):
         self.read(join(dirname(__file__), self.defaults_file_path))
@@ -73,7 +73,7 @@ class Configuration(RawConfigParser):
         if path:
             self.read(path)
         else:
-            self.print_debug_statement("No configuration file found")
+            self.print_debug("No configuration file found")
         self.set_resources_search_path()
         self.set_screen_captures_path()
 
@@ -91,7 +91,7 @@ class Configuration(RawConfigParser):
     def is_shared_mode(self):
         return "-s" in argv
 
-    def print_debug_statement(self, statement):
+    def print_debug(self, statement):
         if self.is_debug_mode():
             print statement
             

@@ -2,6 +2,7 @@ from os.path import exists, join, basename, normpath, abspath
 from sys import argv
 
 from pygame import mixer
+from pygame.locals import *
 
 import Game
 
@@ -40,10 +41,10 @@ class GameChild:
             path = join(root, rel_path)
             if (exists(path)):
                 return path
-        self.print_debug_statement("Couldn't find resource: {0}, {1}".\
+        self.print_debug("Couldn't find resource: {0}, {1}".\
                                    format(section, option))
 
-    def print_debug_statement(self, statement):
+    def print_debug(self, statement):
         if self.is_debug_mode():
             print statement
 
@@ -61,3 +62,12 @@ class GameChild:
 
     def is_debug_mode(self):
         return "-d" in argv
+
+    def get_user_event_id(self):
+        return globals()[self.get_configuration().get("event",
+                                                      "user-event-id")]
+
+    def is_command(self, evt, cmd):
+        name = self.get_configuration().get("event", "command-event-name")
+        return evt.type == self.get_user_event_id() and evt.name == name and \
+               evt.command == cmd

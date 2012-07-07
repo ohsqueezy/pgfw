@@ -5,8 +5,6 @@ from GameChild import *
 
 class Input(GameChild):
 
-    command_event = USEREVENT + 7
-
     def __init__(self, game):
         GameChild.__init__(self, game)
         self.joystick = Joystick()
@@ -29,29 +27,31 @@ class Input(GameChild):
         key_map = {}
         for command, keys in self.get_configuration().items("keys"):
             key_map[command] = []
+            if type(keys) == str:
+                keys = [keys]
             for key in keys:
                 key_map[command].append(globals()[key])
         self.key_map = key_map
 
     def translate_key_press(self, evt):
-        if self.is_debug_mode():
-            print "You pressed %i, suppressed => %s" % (evt.key, self.suppressed)
+        self.print_debug("You pressed {0}, suppressed => {1}".\
+                         format(evt.key, self.suppressed))
         if not self.suppressed:
             key = evt.key
-            for command, keys in self.key_map.iteritems():
+            for cmd, keys in self.key_map.iteritems():
                 if key in keys:
-                    self.post_command(command)
+                    self.post_command(cmd)
 
-    def post_command(self, name):
-        if self.is_debug_mode():
-            print "Posting %s command with id %i" % (name, self.command_event)
-        event.post(event.Event(self.command_event, command=name))
+    def post_command(self, cmd):
+        eid = self.get_user_event_id()
+        self.print_debug("Posting {0} command with id {1}".format(cmd, eid))
+        name = self.get_configuration().get("event", "command-event-name")
+        event.post(event.Event(eid, name=name, command=cmd))
 
     def translate_joy_button(self, evt):
         if not self.suppressed:
             button = evt.button
             config = self.get_configuration()
-            code = self.command_event
             if button == config["joy-advance"]:
                 self.post_command("advance")
             if button == config["joy-pause"]:
@@ -61,7 +61,6 @@ class Input(GameChild):
         if not self.suppressed:
             axis = evt.axis
             value = evt.value
-            code = self.command_event
             if axis == 1:
                 if value < 0:
                     self.post_command("up")

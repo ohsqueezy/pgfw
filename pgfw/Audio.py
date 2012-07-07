@@ -15,7 +15,7 @@ class Audio(GameChild):
     def __init__(self, game):
         GameChild.__init__(self, game)
         self.load_fx()
-        self.subscribe_to(Input.command_event, self.mute)
+        self.subscribe_to(self.get_user_event_id(), self.mute)
 
     def load_fx(self):
         fx = {}
@@ -26,7 +26,7 @@ class Audio(GameChild):
         self.fx = fx
 
     def mute(self, event):
-        if event.command == "mute":
+        if self.is_command(event, "mute"):
             self.muted = not self.muted
             self.set_volume()
 

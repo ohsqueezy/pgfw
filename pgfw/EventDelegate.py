@@ -9,8 +9,6 @@ class EventDelegate(GameChild):
         GameChild.__init__(self, game)
         self.subscribers = dict()
         self.disable()
-        if self.is_debug_mode():
-            print "Event ID range: %i - %i" % (NOEVENT, NUMEVENTS)
 
     def enable(self):
         self.enabled = True
@@ -25,15 +23,15 @@ class EventDelegate(GameChild):
                 kind = evt.type
                 if kind in subscribers:
                     for subscriber in subscribers[kind]:
-                        if self.is_debug_mode():
-                            print "Passing %s to %s" % (evt, subscriber)
+                        self.print_debug("Passing {0} to {1}".\
+                                                   format(evt, subscriber))
                         subscriber(evt)
         else:
             event.pump()
 
     def add_subscriber(self, kind, callback):
-        if self.is_debug_mode():
-            print "Subscribing %s to %i" % (callback, kind)
+        self.print_debug("Subscribing {0} to {1}".\
+                                   format(callback, kind))
         subscribers = self.subscribers
         if kind not in subscribers:
             subscribers[kind] = list()
