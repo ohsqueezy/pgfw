@@ -36,9 +36,7 @@ class GameChild:
         rel_path = config.get(section, option)
         for root in config.get("setup", "resources-search-path"):
             if self.is_shared_mode() and not self.is_absolute_path(root):
-                print "Skipping... {0}".format(root)
                 continue
-            print "Searching... {0}".format(root)
             path = join(root, rel_path)
             if (exists(path)):
                 return path
