@@ -1,4 +1,4 @@
-from os.path import exists, join, basename
+from os.path import exists, join, basename, normpath, abspath
 from sys import argv
 
 from pygame import mixer
@@ -33,18 +33,27 @@ class GameChild:
 
     def get_resource(self, section, option):
         config = self.get_configuration()
-        path = config.get(section, option)
-        if not self.is_local_mode():
-            installation_root = config.get("resources", "installation-path")
-            installed_path = join(installation_root, path)
-            if exists(installed_path):
-                return installed_path
-        elif exists(path):
-            return path
-        return None
+        rel_path = config.get(section, option)
+        for root in config.get("setup", "resources-search-path"):
+            if self.is_shared_mode() and not self.is_absolute_path(root):
+                print "Skipping... {0}".format(root)
+                continue
+            print "Searching... {0}".format(root)
+            path = join(root, rel_path)
+            if (exists(path)):
+                return path
+        self.print_debug_statement("Couldn't find resource: {0}, {1}".\
+                                   format(section, option))
 
-    def is_local_mode(self):
-        return "-l" in argv
+    def print_debug_statement(self, statement):
+        if self.is_debug_mode():
+            print statement
+
+    def is_absolute_path(self, path):
+        return normpath(path) == abspath(path)
+
+    def is_shared_mode(self):
+        return "-s" in argv
 
     def subscribe_to(self, kind, callback):
         self.get_game().delegate.add_subscriber(kind, callback)
