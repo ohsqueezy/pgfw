@@ -1,7 +1,11 @@
+# Commented options are defined by the Configuration class
+
 [setup]
 title = 
-# package-root = (This default is added in the code)
 classifiers =
+resources-search-path = ./, resources/
+installation-dir = /usr/local/share/games/
+# package-root =
 
 [display]
 dimensions = 480, 320
@@ -10,11 +14,9 @@ wait-duration = 2
 caption = 
 centered = yes
 
-[resources]
-installation-path = .
-
 [screen-captures]
-path = caps
+# path =
+rel-path = caps
 
 [keys]
 up = K_UP, K_w

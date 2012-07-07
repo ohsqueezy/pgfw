@@ -25,7 +25,8 @@ class Setup:
 
     @classmethod
     def build_data_map(self):
-        install_root = self.config["resources-install-path"]
+        include = []
+        install_root = self.config.get("setup", "resources-install-path")
         include = [(install_root, ["config", "Basic.ttf", "hi-scores"])]
         exclude = map(realpath,
                       [".git", "esp_hadouken", "vid", "aud/uncompressed", "aud/mod",

@@ -7,18 +7,18 @@ from ConfigParser import RawConfigParser
 
 class Configuration(RawConfigParser):
 
-    default_rel_path = "config"
+    default_project_file_rel_path = "config"
+    default_resources_paths = [".", "resources"]
     defaults_file_path = "defaults"
 
-    def __init__(self, installed_resources_path=None, rel_path=None,
-                 type_declarations=None, local=False):
+    def __init__(self, project_file_rel_path=None, resources_path=None,
+                 type_declarations=None):
         RawConfigParser.__init__(self)
-        self.local = local
+        self.project_file_rel_path = project_file_rel_path
+        self.resources_path = resources_path
         self.set_type_declarations(type_declarations)
-        self.installed_resources_path = installed_resources_path
-        self.rel_path = rel_path
         self.read_defaults()
-        self.read_project_file()
+        self.read_project_config_file()
         self.print_debug_statement(self)
 
     def set_type_declarations(self, type_declarations):
@@ -41,12 +41,21 @@ class Configuration(RawConfigParser):
             elif pair in types["float"]:
                 return float(value)
             elif pair in types["path"]:
-                return join(*value.split(sep))
+                return self.translate_path(value)
             elif pair in types["list"]:
-                return map(str.strip, value.split(types.list_member_sep))
+                if value == "":
+                    return []
+                else:
+                    return map(str.strip, value.split(types.list_member_sep))
             elif pair in types["int-list"]:
                 return map(int, value.split(types.list_member_sep))
         return value
+
+    def translate_path(self, path):
+        new = ""
+        if path[0] == sep:
+            new += sep
+        return new + join(*path.split(sep))
 
     def read_defaults(self):
         self.read(join(dirname(__file__), self.defaults_file_path))
@@ -59,11 +68,28 @@ class Configuration(RawConfigParser):
                 self.set(section, option, value)
         return files_read
 
-    def read_project_file(self):
-        path = self.locate_project_file()
+    def read_project_config_file(self):
+        path = self.locate_project_config_file()
         if path:
             self.read(path)
-        self.print_debug_statement("No configuration file found")
+        else:
+            self.print_debug_statement("No configuration file found")
+        self.set_resources_search_path()
+        self.set_screen_captures_path()
+
+    def locate_project_config_file(self):
+        rel_path = self.project_file_rel_path
+        if not rel_path:
+            rel_path = self.default_project_file_rel_path
+        if exists(rel_path) and not self.is_shared_mode():
+            return rel_path
+        if self.resources_path:
+            installed_path = join(self.resources_path, rel_path)
+            if exists(installed_path):
+                return installed_path
+
+    def is_shared_mode(self):
+        return "-s" in argv
 
     def print_debug_statement(self, statement):
         if self.is_debug_mode():
@@ -72,17 +98,15 @@ class Configuration(RawConfigParser):
     def is_debug_mode(self):
         return "-d" in argv
 
-    def locate_project_file(self):
-        rel_path = self.rel_path if self.rel_path else self.default_rel_path
-        if not self.is_local_mode():
-            installed_path = join(self.installed_resources_path, rel_path)
-            if exists(installed_path):
-                return installed_path
-        if exists(rel_path):
-            return rel_path
-
-    def is_local_mode(self):
-        return "-l" in argv or self.local
+    def set_resources_search_path(self):
+        section, option = "setup", "resources-search-path"
+        search_path = self.get(section, option)
+        if self.resources_path:
+            search_path.append(self.resources_path)
+        else:
+            search_path.append(join(self.get("setup", "installation-dir"),
+                                    self.get("setup", "package-root")))
+        self.set(section, option, search_path)
 
     def get(self, section, option):
         value = RawConfigParser.get(self, section, option)
@@ -94,6 +118,15 @@ class Configuration(RawConfigParser):
         if section == "display":
             if option == "caption":
                 return self.get("setup", "title")
+
+    def set_screen_captures_path(self):
+        section, option = "screen-captures", "path"
+        if not self.has_option(section, option):
+            self.set(section, option, join(self.build_home_path(),
+                                           self.get(section, "rel-path")))
+
+    def build_home_path(self):
+        return join("~", "." + self.get("setup", "package-root"))
 
     def get_section(self, section):
         assignments = {}
@@ -119,9 +152,11 @@ class TypeDeclarations(dict):
         self.add("int", "display", "wait-duration")
         self.add("bool", "display", "centered")
         self.add("int-list", "display", "dimensions")
-        self.add("path", "resources", "installation-path")
         self.add("path", "screen-captures", "path")
         self.add("list", "setup", "classifiers")
+        self.add("list", "setup", "resources-search-path")
+        self.add("path", "setup", "installation-dir")
+        self.add("path", "setup", "package-root")
         self.add("list", "keys", "up")
         self.add("list", "keys", "right")
         self.add("list", "keys", "down")

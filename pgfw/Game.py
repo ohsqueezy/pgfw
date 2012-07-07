@@ -15,9 +15,10 @@ from ScreenGrabber import *
 
 class Game(GameChild, Animation):
     
-    def __init__(self, installed_resources_path=".", config_rel_path=None):
+    resources_path = None
+
+    def __init__(self, config_rel_path=None):
         self.init_gamechild()
-        self.installed_resources_path = installed_resources_path
         self.config_rel_path = config_rel_path
         self.set_configuration()
         self.init_animation()
@@ -33,8 +34,8 @@ class Game(GameChild, Animation):
         GameChild.__init__(self)
 
     def set_configuration(self):
-        self.configuration = Configuration(self.installed_resources_path,
-                                           self.config_rel_path)
+        self.configuration = Configuration(self.config_rel_path,
+                                           self.resources_path)
 
     def init_animation(self):
         Animation.__init__(self,
