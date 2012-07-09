@@ -24,13 +24,11 @@ class Setup:
         return packages
 
     @classmethod
-    def build_data_map(self):
+    def build_data_installation_map(self):
         include = []
-        install_root = self.config.get("setup", "resources-install-path")
-        include = [(install_root, ["config", "Basic.ttf", "hi-scores"])]
-        exclude = map(realpath,
-                      [".git", "esp_hadouken", "vid", "aud/uncompressed", "aud/mod",
-                       "img/local", "dist", "build"])
+        config = self.config.get_section("setup")
+        install_root = config["installation-path"]
+        exclude = config["data-exclude"]
         for root, dirs, files in walk("."):
             removal = []
             for directory in dirs:

@@ -19,6 +19,7 @@ class Configuration(RawConfigParser):
         self.set_type_declarations(type_declarations)
         self.read_defaults()
         self.read_project_config_file()
+        self.modify_defaults()
         self.print_debug(self)
 
     def set_type_declarations(self, type_declarations):
@@ -74,8 +75,6 @@ class Configuration(RawConfigParser):
             self.read(path)
         else:
             self.print_debug("No configuration file found")
-        self.set_resources_search_path()
-        self.set_screen_captures_path()
 
     def locate_project_config_file(self):
         rel_path = self.project_file_rel_path
@@ -98,14 +97,24 @@ class Configuration(RawConfigParser):
     def is_debug_mode(self):
         return "-d" in argv
 
+    def modify_defaults(self):
+        self.set_installation_path()
+        self.set_resources_search_path()
+        self.set_screen_captures_path()
+        self.set_data_exclusion_list()
+
+    def set_installation_path(self):
+        self.set("setup", "installation-path",
+                 join(self.get("setup", "installation-dir"),
+                      self.get("setup", "package-root")))
+
     def set_resources_search_path(self):
         section, option = "setup", "resources-search-path"
         search_path = self.get(section, option)
         if self.resources_path:
             search_path.append(self.resources_path)
         else:
-            search_path.append(join(self.get("setup", "installation-dir"),
-                                    self.get("setup", "package-root")))
+            search_path.append(self.get("setup", "installation-path"))
         self.set(section, option, search_path)
 
     def get(self, section, option):
@@ -127,6 +136,15 @@ class Configuration(RawConfigParser):
 
     def build_home_path(self):
         return join("~", "." + self.get("setup", "package-root"))
+
+    def set_data_exclusion_list(self):
+        section, option = "setup", "data-exclude"
+        exclude = []
+        if self.has_option(section, option):
+            exclude = self.get(section, option)
+        exclude += [".git", ".gitignore", "README", "build/", "dist/",
+                    self.get("setup", "package-root")]
+        self.set(section, option, exclude)
 
     def get_section(self, section):
         assignments = {}
@@ -157,6 +175,7 @@ class TypeDeclarations(dict):
         self.add("list", "setup", "resources-search-path")
         self.add("path", "setup", "installation-dir")
         self.add("path", "setup", "package-root")
+        self.add("list", "setup", "data-exclude")
         self.add("list", "keys", "up")
         self.add("list", "keys", "right")
         self.add("list", "keys", "down")

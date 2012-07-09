@@ -1,11 +1,13 @@
-# Commented options are defined by the Configuration class
+# Commented options are defined in Configuration.py
 
 [setup]
 title = 
 classifiers =
 resources-search-path = ./, resources/
 installation-dir = /usr/local/share/games/
+# installation-path =
 # package-root =
+# data-exclude =
 
 [display]
 dimensions = 480, 320
