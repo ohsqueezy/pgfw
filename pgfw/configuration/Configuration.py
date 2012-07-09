@@ -143,7 +143,8 @@ class Configuration(RawConfigParser):
         if self.has_option(section, option):
             exclude = self.get(section, option)
         exclude += [".git", ".gitignore", "README", "build/", "dist/",
-                    self.get("setup", "package-root")]
+                    self.get("setup", "package-root"),
+                    self.get("setup", "changelo")]
         self.set(section, option, exclude)
 
     def get_section(self, section):
@@ -176,6 +177,7 @@ class TypeDeclarations(dict):
         self.add("path", "setup", "installation-dir")
         self.add("path", "setup", "package-root")
         self.add("list", "setup", "data-exclude")
+        self.add("path", "setup", "changelo")
         self.add("list", "keys", "up")
         self.add("list", "keys", "right")
         self.add("list", "keys", "down")

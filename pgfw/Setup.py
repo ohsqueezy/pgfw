@@ -8,13 +8,11 @@ class Setup:
 
     config = Configuration()
 
-    @classmethod
     def remove_old_mainfest(self):
         path = "MANIFEST"
         if exists(path):
             remove(path)
 
-    @classmethod
     def build_package_list(self):
         packages = []
         package_root = self.config.get("setup", "package-root")
@@ -23,7 +21,6 @@ class Setup:
                 packages.append(root.replace(sep, "."))
         return packages
 
-    @classmethod
     def build_data_installation_map(self):
         include = []
         config = self.config.get_section("setup")
@@ -39,7 +36,6 @@ class Setup:
                                                   root)), path))
         return include
 
-    @classmethod
     def remove_excluded_dirs(self, dirs, root, exclude):
         removal = []
         for directory in dirs:
@@ -49,27 +45,28 @@ class Setup:
             dirs.remove(directory)
         return dirs
 
-    @classmethod
     def translate_title(self):
-        return self.config["game-title"].replace(" ", "-")
+        return self.config.get("setup", "title").replace(" ", "-")
 
-    @classmethod
     def build_description(self):
         return "\n%s\n%s\n%s" % (file("description").read(),
                                  "Changelog\n=========",
                                  self.translate_changelog())
 
-    @classmethod
     def translate_changelog(self):
         translation = ""
-        for line in file("changelog"):
-            line = line.strip()
-            if line.startswith("esp-hadouken"):
-                version = findall("\((.*)\)", line)[0]
-                translation += "\n%s\n%s\n" % (version, "-" * len(version))
-            elif line and not line.startswith("--"):
-                if line.startswith("*"):
-                    translation += line + "\n"
-                else:
-                    translation += "  " + line + "\n"
+        path = self.config.get("setup", "changelog")
+        if exists(path):
+            lines = file(path).readlines()
+            package_name = lines[0].split()[0]
+            for line in lines:
+                line = line.strip()
+                if line.startswith(package_name):
+                    version = findall("\((.*)\)", line)[0]
+                    translation += "\n%s\n%s\n" % (version, "-" * len(version))
+                elif line and not line.startswith("--"):
+                    if line.startswith("*"):
+                        translation += line + "\n"
+                    else:
+                        translation += "  " + line + "\n"
         return translation

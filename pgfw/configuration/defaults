@@ -8,6 +8,8 @@ installation-dir = /usr/local/share/games/
 # installation-path =
 # package-root =
 # data-exclude =
+changelog = changelog
+init-script = 
 
 [display]
 dimensions = 480, 320
