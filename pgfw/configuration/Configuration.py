@@ -9,7 +9,6 @@ class Configuration(RawConfigParser):
 
     default_project_file_rel_path = "config"
     default_resources_paths = [".", "resources"]
-    defaults_file_path = "defaults"
 
     def __init__(self, project_file_rel_path=None, resources_path=None,
                  type_declarations=None):
@@ -17,7 +16,7 @@ class Configuration(RawConfigParser):
         self.project_file_rel_path = project_file_rel_path
         self.resources_path = resources_path
         self.set_type_declarations(type_declarations)
-        self.read_defaults()
+        self.set_defaults()
         self.read_project_config_file()
         self.modify_defaults()
         self.print_debug(self)
@@ -54,13 +53,56 @@ class Configuration(RawConfigParser):
 
     def translate_path(self, path):
         new = ""
-        if path[0] == sep:
+        if path and path[0] == sep:
             new += sep
         return expanduser("{0}{1}".format(new, join(*path.split(sep))))
 
-    def read_defaults(self):
-        self.read(join(dirname(__file__), self.defaults_file_path))
-        self.set("setup", "package-root", basename(getcwd()))
+    def set_defaults(self):
+        add_section = self.add_section
+        set_option = self.set
+        section = "setup"
+        add_section(section)
+        set_option(section, "package-root", basename(getcwd()))
+        set_option(section, "title", "") 
+        set_option(section, "classifiers", "")
+        set_option(section, "resources-search-path", "./, resources/")
+        set_option(section, "installation-dir", "/usr/local/share/games/")
+        set_option(section, "changelog", "changelog")
+        set_option(section, "description-file", "")
+        set_option(section, "init-script", "") 
+        set_option(section, "version", "")
+        set_option(section, "summary", "")
+        set_option(section, "license", "")
+        set_option(section, "platforms", "")
+        set_option(section, "contact-name", "")
+        set_option(section, "contact-email", "")
+        set_option(section, "url", "")
+        set_option(section, "requirements", "")
+        set_option(section, "main-object", "pgfw/Game.py")
+        set_option(section, "resources-path-identifier", "resources_path")
+        section = "display"
+        add_section(section)
+        set_option(section, "dimensions", "480, 320")
+        set_option(section, "frame-duration", "33")
+        set_option(section, "wait-duration", "2")
+        set_option(section, "caption", "") 
+        set_option(section, "centered", "yes")
+        section = "screen-captures"
+        add_section(section)
+        set_option(section, "rel-path", "caps")
+        set_option(section, "file-name-format", "%Y-%m-%d_%H:%M:%S")
+        set_option(section, "file-extension", "png")
+        section = "keys"
+        add_section(section)
+        set_option(section, "up", "K_UP, K_w")
+        set_option(section, "right", "K_RIGHT, K_d")
+        set_option(section, "down", "K_DOWN, K_s")
+        set_option(section, "left", "K_LEFT, K_a")
+        set_option(section, "capture-screen", "K_F9")
+        section = "event"
+        add_section(section)
+        set_option(section, "user-event-id", "USEREVENT")
+        set_option(section, "command-event-name", "command")
 
     def read(self, filenames):
         files_read = RawConfigParser.read(self, filenames)
@@ -102,6 +144,7 @@ class Configuration(RawConfigParser):
         self.set_resources_search_path()
         self.set_screen_captures_path()
         self.set_data_exclusion_list()
+        self.set_requirements()
 
     def set_installation_path(self):
         self.set("setup", "installation-path",
@@ -143,9 +186,18 @@ class Configuration(RawConfigParser):
         if self.has_option(section, option):
             exclude = self.get(section, option)
         exclude += [".git", ".gitignore", "README", "build/", "dist/",
-                    self.get("setup", "package-root"),
-                    self.get("setup", "changelo")]
+                    "setup.py", "MANIFEST", self.get("setup", "package-root"),
+                    self.get("setup", "changelog")]
         self.set(section, option, exclude)
+
+    def set_requirements(self):
+        section, option = "setup", "requirements"
+        requirements = []
+        if self.has_option(section, option):
+            requirements = self.get(section, option)
+        if "pygame" not in requirements:
+            requirements.append("pygame")
+        self.set(section, option, requirements)
 
     def get_section(self, section):
         assignments = {}
@@ -167,21 +219,25 @@ class TypeDeclarations(dict):
     def __init__(self):
         dict.__init__(self, {"bool": [], "int": [], "float": [], "path": [],
                              "list": [], "int-list": []})
-        self.add("int", "display", "frame-duration")
-        self.add("int", "display", "wait-duration")
-        self.add("bool", "display", "centered")
-        self.add("int-list", "display", "dimensions")
-        self.add("path", "screen-captures", "path")
-        self.add("list", "setup", "classifiers")
-        self.add("list", "setup", "resources-search-path")
-        self.add("path", "setup", "installation-dir")
-        self.add("path", "setup", "package-root")
-        self.add("list", "setup", "data-exclude")
-        self.add("path", "setup", "changelo")
-        self.add("list", "keys", "up")
-        self.add("list", "keys", "right")
-        self.add("list", "keys", "down")
-        self.add("list", "keys", "left")
+        add = self.add
+        add("int", "display", "frame-duration")
+        add("int", "display", "wait-duration")
+        add("bool", "display", "centered")
+        add("int-list", "display", "dimensions")
+        add("path", "screen-captures", "path")
+        add("list", "setup", "classifiers")
+        add("list", "setup", "resources-search-path")
+        add("path", "setup", "installation-dir")
+        add("path", "setup", "package-root")
+        add("list", "setup", "data-exclude")
+        add("path", "setup", "changelog")
+        add("list", "setup", "requirements")
+        add("path", "setup", "description-file")
+        add("path", "setup", "main-object")
+        add("list", "keys", "up")
+        add("list", "keys", "right")
+        add("list", "keys", "down")
+        add("list", "keys", "left")
 
     def add(self, type, section, option):
         self[type].append((section, option))
