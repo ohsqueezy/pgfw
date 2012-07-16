@@ -7,7 +7,7 @@ from pprint import pprint
 from fileinput import FileInput
 from re import sub, match
 
-from configuration.Configuration import *
+from Configuration import *
 
 class Setup:
 
