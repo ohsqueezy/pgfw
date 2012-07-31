@@ -215,29 +215,31 @@ class Configuration(RawConfigParser):
 class TypeDeclarations(dict):
 
     list_member_sep = ','
+    defaults = {"display": {"int": ["frame-duration", "wait-duration"],
+                            "bool": "centered",
+                            "int-list": "dimensions"},
+                "screen-captures": {"path": "path"},
+                "setup": {"list": ["classifiers", "resources-search-path",
+                                   "requirements", "data-exclude"],
+                          "path": ["installation-dir", "package-root",
+                                    "changelog", "description-file",
+                                    "main-object"]},
+                "keys": {"list": ["up", "right", "down", "left"]}}
+    additional_defaults = {}
 
     def __init__(self):
         dict.__init__(self, {"bool": [], "int": [], "float": [], "path": [],
                              "list": [], "int-list": []})
-        add = self.add
-        add("int", "display", "frame-duration")
-        add("int", "display", "wait-duration")
-        add("bool", "display", "centered")
-        add("int-list", "display", "dimensions")
-        add("path", "screen-captures", "path")
-        add("list", "setup", "classifiers")
-        add("list", "setup", "resources-search-path")
-        add("path", "setup", "installation-dir")
-        add("path", "setup", "package-root")
-        add("list", "setup", "data-exclude")
-        add("path", "setup", "changelog")
-        add("list", "setup", "requirements")
-        add("path", "setup", "description-file")
-        add("path", "setup", "main-object")
-        add("list", "keys", "up")
-        add("list", "keys", "right")
-        add("list", "keys", "down")
-        add("list", "keys", "left")
+        self.add_chart(self.defaults)
+        self.add_chart(self.additional_defaults)
 
-    def add(self, type, section, option):
-        self[type].append((section, option))
+    def add(self, cast, section, option):
+        self[cast].append((section, option))
+
+    def add_chart(self, chart):
+        for section, declarations in chart.iteritems():
+            for cast, options in declarations.iteritems():
+                if type(options) != list:
+                    options = [options]
+                for option in options:
+                    self.add(cast, section, option)

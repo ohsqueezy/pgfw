@@ -8,7 +8,9 @@ Classes that facilitate the creation of Pygame projects
 Example
 =======
 
-Create a project which draws a square every second:
+Save and run the following script to create a project that redraws a square at a
+random location every second.  This script may also be found in the `sample.py`
+file.
 
 from time import sleep
 from random import randint
@@ -20,7 +22,7 @@ class SampleGame(Game):
 
     square_width = 30
 
-    # update runs every frame, you can think of it as the mainloop
+    # update runs every frame (a.k.a. the mainloop)
     def update(self):
         sleep(1)
         screen = self.get_screen()

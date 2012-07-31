@@ -17,9 +17,10 @@ class Game(GameChild, Animation):
     
     resources_path = None
 
-    def __init__(self, config_rel_path=None):
+    def __init__(self, config_rel_path=None, type_declarations=None):
         self.init_gamechild()
         self.config_rel_path = config_rel_path
+        self.type_declarations = type_declarations
         self.set_configuration()
         self.init_animation()
         self.align_window()
@@ -29,13 +30,15 @@ class Game(GameChild, Animation):
         self.subscribe_to(self.get_user_event_id(), self.end)
         self.clear_queue()
         self.delegate.enable()
+        
 
     def init_gamechild(self):
         GameChild.__init__(self)
 
     def set_configuration(self):
         self.configuration = Configuration(self.config_rel_path,
-                                           self.resources_path)
+                                           self.resources_path,
+                                           self.type_declarations)
 
     def init_animation(self):
         Animation.__init__(self,
