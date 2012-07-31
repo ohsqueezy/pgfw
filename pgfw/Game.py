@@ -27,7 +27,7 @@ class Game(GameChild, Animation):
         pygame.init()
         self.set_children()
         self.subscribe_to(QUIT, self.end)
-        self.subscribe_to(self.get_user_event_id(), self.end)
+        self.subscribe_to(self.get_custom_event_id(), self.end)
         self.clear_queue()
         self.delegate.enable()
         

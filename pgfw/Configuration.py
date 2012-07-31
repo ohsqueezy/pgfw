@@ -101,7 +101,7 @@ class Configuration(RawConfigParser):
         set_option(section, "capture-screen", "K_F9")
         section = "event"
         add_section(section)
-        set_option(section, "user-event-id", "USEREVENT")
+        set_option(section, "custom-event-id", "USEREVENT")
         set_option(section, "command-event-name", "command")
 
     def read(self, filenames):

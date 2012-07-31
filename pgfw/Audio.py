@@ -15,7 +15,7 @@ class Audio(GameChild):
     def __init__(self, game):
         GameChild.__init__(self, game)
         self.load_fx()
-        self.subscribe_to(self.get_user_event_id(), self.mute)
+        self.subscribe_to(self.get_custom_event_id(), self.mute)
 
     def load_fx(self):
         fx = {}

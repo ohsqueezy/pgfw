@@ -12,7 +12,7 @@ class ScreenGrabber(GameChild):
 
     def __init__(self, game):
         GameChild.__init__(self, game)
-        self.subscribe_to(self.get_user_event_id(), self.save_display)
+        self.subscribe_to(self.get_custom_event_id(), self.save_display)
 
     def save_display(self, event):
         if self.is_command(event, "capture-screen"):

@@ -63,9 +63,9 @@ class GameChild:
     def is_debug_mode(self):
         return "-d" in argv
 
-    def get_user_event_id(self):
+    def get_custom_event_id(self):
         return globals()[self.get_configuration().get("event",
-                                                      "user-event-id")]
+                                                      "custom-event-id")]
 
     def is_command(self, evt, cmd):
         name = self.get_configuration().get("event", "command-event-name")
