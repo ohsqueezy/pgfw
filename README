@@ -17,12 +17,11 @@ from random import randint
 
 from pgfw.Game import Game
 
-# inheriting from Game allows you to customize your project
 class SampleGame(Game):
 
     square_width = 30
 
-    # update runs every frame (a.k.a. the mainloop)
+    # update is a special method that runs once every frame 
     def update(self):
         sleep(1)
         screen = self.get_screen()
@@ -34,7 +33,6 @@ class SampleGame(Game):
 
 
 if __name__ == '__main__':
-    # the play method begins the project's animation
     SampleGame().play()
 
 
