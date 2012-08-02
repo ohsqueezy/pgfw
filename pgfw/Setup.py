@@ -1,6 +1,6 @@
 from os import walk, remove
 from os.path import sep, join, exists, normpath
-from re import findall
+from re import findall, sub
 from distutils.core import setup
 from distutils.command.install import install
 from pprint import pprint
@@ -12,9 +12,10 @@ from Configuration import *
 class Setup:
 
     config = Configuration()
+    manifest_path = "MANIFEST"
 
     def remove_old_mainfest(self):
-        path = "MANIFEST"
+        path = self.manifest_path
         if exists(path):
             remove(path)
 
@@ -49,7 +50,9 @@ class Setup:
         return paths
 
     def translate_title(self):
-        return self.config.get("setup", "title").replace(" ", "-")
+        config = self.config.get_section("setup")
+        title = config["title"].replace(" ", config["whitespace-placeholder"])
+        return sub("[^\w-]", config["special-char-placeholder"], title)
 
     def build_description(self):
         description = ""
@@ -79,6 +82,7 @@ class Setup:
         return translation
 
     def setup(self):
+        self.remove_old_mainfest()
         config = self.config.get_section("setup")
         setup(cmdclass={"install": insert_resources_path},
               name=self.translate_title(),

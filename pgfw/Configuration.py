@@ -80,6 +80,8 @@ class Configuration(RawConfigParser):
         set_option(section, "requirements", "")
         set_option(section, "main-object", "pgfw/Game.py")
         set_option(section, "resources-path-identifier", "resources_path")
+        set_option(section, "special-char-placeholder", "_")
+        set_option(section, "whitespace-placeholder", "-")
         section = "display"
         add_section(section)
         set_option(section, "dimensions", "480, 320")
@@ -186,7 +188,8 @@ class Configuration(RawConfigParser):
         if self.has_option(section, option):
             exclude = self.get(section, option)
         exclude += [".git", ".gitignore", "README", "build/", "dist/",
-                    "setup.py", "MANIFEST", self.get("setup", "package-root"),
+                    "setup.py", "MANIFEST", "PKG-INFO",
+                    self.get("setup", "package-root"),
                     self.get("setup", "changelog")]
         self.set(section, option, exclude)
 
